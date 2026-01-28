@@ -28,8 +28,8 @@ const Footer = () => {
                     </div>
                 </div>
                 <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
-                    <p>&copy; {new Date().getFullYear()} VideoJuegos APP. Todos los derechos reservados.</p>
-                    <p className="mt-2 md:mt-0">Datos vía RAWG API.</p>
+                    <p>&copy; {new Date().getFullYear()} Alfonso Carmona Aguayo - Practica React.</p>
+
                 </div>
             </div>
         </footer>
