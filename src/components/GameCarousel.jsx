@@ -32,9 +32,10 @@ const GameCarousel = () => {
                 </h2>
             </div>
 
-            <div className="flex overflow-x-auto pb-8 px-4 scrollbar-hide snap-x -mx-4 items-center xl:justify-center">
+
+                <div className="flex overflow-x-auto pb-8 px-4 scrollbar-hide snap-x items-center xl:justify-center">
                 {games.map((game) => (
-                    <div key={game.id} className="snap-center shrink-0 first:pl-4 last:pr-4">
+                     <div key={game.id} className="snap-center shrink-0 w-[360px]">
                         <GameCard
                         id={game.id}
                         title={game.name}
