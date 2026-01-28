@@ -1,37 +1,74 @@
-// Tu llave y la web base
-const KEY = '053e1c68be48474790d44b6a51caaa6a';
-const URL = 'https://api.rawg.io/api';
+const llaveApi = '053e1c68be48474790d44b6a51caaa6a';
+const URLRAW = 'https://api.rawg.io/api';
 
-// 1. Traer juegos populares (He puesto que traiga 10 siempre)
-export const verPopulares = async () => {
-    // Pedimos los datos
-    const respuesta = await fetch(`${URL}/games?key=${KEY}&ordering=-rating&page_size=10`);
-    // Los convertimos a algo que JS entienda (JSON)
-    const datos = await respuesta.json();
-    // Devolvemos la lista de juegos
-    return datos.results;
+// Obtener juegos populares
+export const obtenerJuegosPopulares = async (pageSize = 4) => {
+  try {
+    const url = `${URLRAW}/games?key=${llaveApi}&ordering=-rating&page_size=${pageSize}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) return [];
+
+    return data.results;
+  } catch (error) {
+    console.log("Error en juegos populares");
+    return [];
+  }
 };
 
-// 2. Traer los géneros (Acción, Aventura...)
-export const verGeneros = async () => {
-    const respuesta = await fetch(`${URL}/genres?key=${KEY}`);
-    const datos = await respuesta.json();
-    return datos.results;
+// Obtener géneros por categorias 
+export const obtenerGeneros = async () => {
+  try {
+    const response = await fetch(`${URLRAW}/genres?key=${llaveApi}`);
+    const data = await response.json();
+
+    if (!response.ok) return [];
+
+    return data.results;
+  } catch (error) {
+    console.log("Error al cargar géneros");
+    return [];
+  }
 };
 
-// 3. Buscar juego por nombre (Solo busca, no filtra por nada más para no liar)
-export const buscar = async (texto) => {
-    // Si no escriben nada, no busco nada
-    if (!texto) return []; 
-    
-    const respuesta = await fetch(`${URL}/games?key=${KEY}&search=${texto}&page_size=5`);
-    const datos = await respuesta.json();
-    return datos.results;
+// con esta funcion podemos buscar los juegos y tambien añade la paginacion
+export const buscarJuegos = async (query = "", pageSize = 8, genreId = "", page = 1) => {
+  try {
+    let url = `${URLRAW}/games?key=${llaveApi}&page_size=${pageSize}&page=${page}`;
+
+    if (query) {
+      url += `&search=${query}`;
+    }
+
+    if (genreId) {
+      url += `&genres=${genreId}`;
+    }
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) return { results: [], count: 0 };
+
+    return { results: data.results, count: data.count };
+  } catch (error) {
+    console.log("Error en la búsqueda");
+    return { results: [], count: 0 };
+  }
 };
 
-// 4. Ver info de un solo juego
-export const verJuego = async (id) => {
-    const respuesta = await fetch(`${URL}/games/${id}?key=${KEY}`);
-    const datos = await respuesta.json();
-    return datos; // Aquí devolvemos "datos" directo, no "results"
+
+//Obtener detalle de un juego por ID
+export const obtenerDetalleJuego = async (id) => {
+  try {
+    const response = await fetch(`${URLRAW}/games/${id}?key=${llaveApi}`);
+    const data = await response.json();
+
+    if (!response.ok) return null;
+
+    return data;
+  } catch (error) {
+    console.log("Error en detalle del juego");
+    return null;
+  }
 };
