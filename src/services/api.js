@@ -33,7 +33,7 @@ export const obtenerGeneros = async () => {
 };
 
 // con esta funcion podemos buscar los juegos y tambien añade la paginacion
-export const buscarJuegos = async (query = "", pageSize = 8, genreId = "", page = 1) => {
+export const buscarJuegos = async (query = "", pageSize = 8, genreId = "", page = 1, tags = "", publishers = "") => {
   try {
     let url = `${URLRAW}/games?key=${llaveApi}&page_size=${pageSize}&page=${page}`;
 
@@ -43,6 +43,14 @@ export const buscarJuegos = async (query = "", pageSize = 8, genreId = "", page 
 
     if (genreId) {
       url += `&genres=${genreId}`;
+    }
+
+    if (tags) {
+      url += `&tags=${tags}`;
+    }
+
+    if (publishers) {
+      url += `&publishers=${publishers}`;
     }
 
     const response = await fetch(url);
@@ -70,5 +78,39 @@ export const obtenerDetalleJuego = async (id) => {
   } catch (error) {
     console.log("Error en detalle del juego");
     return null;
+  }
+};
+
+// Obtener detalle de un publisher
+export const obtenerDetallePublisher = async (id) => {
+  try {
+    const response = await fetch(`${URLRAW}/publishers/${id}?key=${llaveApi}`);
+    const data = await response.json();
+
+    if (!response.ok) return null;
+
+    return data;
+  } catch (error) {
+    console.log("Error al obtener detalle del publisher");
+    return null;
+  }
+};
+
+// Buscar publishers
+export const buscarPublishers = async (query = "", page = 1, pageSize = 8) => {
+  try {
+    let url = `${URLRAW}/publishers?key=${llaveApi}&page=${page}&page_size=${pageSize}`;
+    if (query) {
+      url += `&search=${query}`;
+    }
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) return { results: [], count: 0 };
+
+    return { results: data.results, count: data.count };
+  } catch (error) {
+    console.log("Error al buscar publishers");
+    return { results: [], count: 0 };
   }
 };

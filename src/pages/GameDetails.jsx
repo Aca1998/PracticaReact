@@ -67,9 +67,13 @@ const GameDetails = () => {
                         <div>
                             <div className="flex flex-wrap gap-2 mb-4">
                                 {game.genres.map(genre => (
-                                    <span key={genre.id} className="bg-violet-500/20 text-violet-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-violet-500/30">
+                                    <Link
+                                        key={genre.id}
+                                        to={`/juegos/genero/${genre.id}`}
+                                        className="bg-violet-500/20 text-violet-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-violet-500/30 hover:bg-violet-500/40 transition-colors"
+                                    >
                                         {genre.name}
-                                    </span>
+                                    </Link>
                                 ))}
                             </div>
                             <h1 className="text-4xl md:text-6xl font-black text-white mb-2">{game.name}</h1>
@@ -108,6 +112,25 @@ const GameDetails = () => {
                         </section>
 
                         <section>
+                            <h2 className="text-2xl font-bold text-white mb-4">Tags</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {game.tags && game.tags.length > 0 ? (
+                                    game.tags.map(tag => (
+                                        <Link
+                                            key={tag.id}
+                                            to={`/juegos/tag/${tag.id}`}
+                                            className="bg-slate-700/50 text-slate-300 px-3 py-1 rounded-full text-xs font-medium border border-white/10 hover:border-violet-500/50 hover:text-white transition-all"
+                                        >
+                                            {tag.name}
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <p className="text-slate-500">No hay tags disponibles.</p>
+                                )}
+                            </div>
+                        </section>
+
+                        <section>
                             <h2 className="text-2xl font-bold text-white mb-4">Plataformas</h2>
                             <div className="flex flex-wrap gap-3">
                                 {game.platforms.map(({ platform }) => (
@@ -137,15 +160,33 @@ const GameDetails = () => {
                         <div className="bg-[#1E293B] p-6 rounded-2xl border border-white/5 space-y-4">
                             <div>
                                 <h3 className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Desarrollador</h3>
-                                <p className="text-white font-medium">
-                                    {game.developers && game.developers.length > 0 ? game.developers.map(d => d.name).join(', ') : 'N/A'}
-                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.developers && game.developers.length > 0 ? (
+                                        game.developers.map(d => (
+                                            <span key={d.id} className="text-white font-medium">{d.name}</span>
+                                        ))
+                                    ) : (
+                                        <p className="text-slate-400">N/A</p>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <h3 className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Editor</h3>
-                                <p className="text-white font-medium">
-                                    {game.publishers && game.publishers.length > 0 ? game.publishers.map(p => p.name).join(', ') : 'N/A'}
-                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {game.publishers && game.publishers.length > 0 ? (
+                                        game.publishers.map(p => (
+                                            <Link
+                                                key={p.id}
+                                                to={`/publisher/${p.id}`}
+                                                className="text-white font-medium hover:text-violet-400 transition-colors"
+                                            >
+                                                {p.name}
+                                            </Link>
+                                        ))
+                                    ) : (
+                                        <p className="text-slate-400">N/A</p>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <h3 className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Metacritic</h3>

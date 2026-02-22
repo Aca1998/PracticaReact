@@ -20,11 +20,16 @@ const Header = () => {
                                 Explorar
                             </Link>
                         </li>
-                             <li>
+                        <li>
                             <Link to="/favoritos" className="text-slate-300 hover:text-white transition-colors hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]">
                                 Favoritos
                             </Link>
-                            </li>
+                        </li>
+                        <li>
+                            <Link to="/publishers" className="text-slate-300 hover:text-white transition-colors hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+                                Publishers
+                            </Link>
+                        </li>
 
                     </ul>
                 </nav>

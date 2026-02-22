@@ -6,8 +6,9 @@ import Home from './pages/Home';
 import Explore from './pages/Explore';
 import GameDetails from './pages/GameDetails';
 import Favorites from './pages/Favorites';
-
-
+import GamesByCategory from './pages/GamesByCategory';
+import PublisherSearch from './pages/PublisherSearch';
+import PublisherDetail from './pages/PublisherDetail';
 
 function App() {
   return (
@@ -18,10 +19,11 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explorar" element={<Explore />} />
+            <Route path="/juegos/:categoryType/:slug" element={<GamesByCategory />} />
+            <Route path="/publishers" element={<PublisherSearch />} />
+            <Route path="/publisher/:id" element={<PublisherDetail />} />
             <Route path="/juego/:id" element={<GameDetails />} />
             <Route path="/favoritos" element={<Favorites />} />
-
-
           </Routes>
         </main>
         <Footer />
