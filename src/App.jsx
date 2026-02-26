@@ -9,6 +9,8 @@ import Favorites from './pages/Favorites';
 import GamesByCategory from './pages/GamesByCategory';
 import PublisherSearch from './pages/PublisherSearch';
 import PublisherDetail from './pages/PublisherDetail';
+import Events from './pages/Events';
+import MyEvents from './pages/MyEvents';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explorar" element={<Explore />} />
+            <Route path="/eventos" element={<Events />} />
+            <Route path="/mis-eventos" element={<MyEvents />} />
             <Route path="/juegos/:categoryType/:slug" element={<GamesByCategory />} />
             <Route path="/publishers" element={<PublisherSearch />} />
             <Route path="/publisher/:id" element={<PublisherDetail />} />

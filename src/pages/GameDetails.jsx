@@ -1,37 +1,36 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { obtenerDetalleJuego } from '../services/api';
+import { API_SERVICE } from '../services/service';
+import { toggleFavorite } from '../store/slices/gamesSlice';
 
 const GameDetails = () => {
     const { id } = useParams();
+    const dispatch = useDispatch();
+    const favorites = useSelector((state) => state.games.favorites);
+
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isFavorite, setIsFavorite] = useState(false);
+
+    const isFavorite = favorites.includes(id);
 
     useEffect(() => {
         const fetchGame = async () => {
-            const data = await obtenerDetalleJuego(id);
-            setGame(data);
-            setLoading(false);
+            setLoading(true);
+            try {
+                const data = await API_SERVICE.getGameDetail(id);
+                setGame(data);
+            } catch (error) {
+                console.error("Error fetching game detail", error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchGame();
-
-        // Check favorites
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        setIsFavorite(favorites.includes(id));
     }, [id]);
 
-    const toggleFavorite = () => {
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        let newFavorites;
-        if (favorites.includes(id)) {
-            newFavorites = favorites.filter(favId => favId !== id);
-            setIsFavorite(false);
-        } else {
-            newFavorites = [...favorites, id];
-            setIsFavorite(true);
-        }
-        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+    const handleToggleFavorite = () => {
+        dispatch(toggleFavorite(id));
     };
 
     if (loading) {
@@ -88,7 +87,7 @@ const GameDetails = () => {
                         </div>
 
                         <button
-                            onClick={toggleFavorite}
+                            onClick={handleToggleFavorite}
                             className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all duration-300 ${isFavorite ? 'bg-red-500/20 text-red-500 border-red-500/50' : 'bg-white/10 text-white hover:bg-white/20'} border`}
                         >
                             <span className="text-xl">{isFavorite ? '❤️' : '🤍'}</span>
