@@ -1,22 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import GameCard from './GameCard';
-import { obtenerJuegosPopulares } from '../services/api';
+import { fetchPopularGames } from '../store/slices/gamesSlice';
 
 const GameCarousel = () => {
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { popularGames: games, loading } = useSelector((state) => state.games);
 
   const carruselRef = useRef(null);
 
   useEffect(() => {
-    const fetchGames = async () => {
-      const data = await obtenerJuegosPopulares(15);
-      setGames(data);
-      setLoading(false);
-    };
-    fetchGames();
-  }, []);
+    dispatch(fetchPopularGames(15));
+  }, [dispatch]);
 
   useEffect(() => {
     if (loading) return;
@@ -30,9 +26,9 @@ const GameCarousel = () => {
       if (alFinal) {
         el.scrollTo({ left: 0, behavior: 'smooth' });
       } else {
-        el.scrollBy({ left: 320, behavior: 'smooth' }); 
+        el.scrollBy({ left: 320, behavior: 'smooth' });
       }
-    }, 1500); 
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [loading]);
@@ -65,11 +61,11 @@ const GameCarousel = () => {
         style={{ scrollbarWidth: 'none' }}
       >
         {games.map((game) => (
-                <Link
-                key={game.id}
-                to={`/juego/${game.id}`}
-                className="shrink-0 w-[320px] block transform transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
-                >
+          <Link
+            key={game.id}
+            to={`/juego/${game.id}`}
+            className="shrink-0 w-[320px] block transform transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02]"
+          >
 
             <GameCard
               id={game.id}

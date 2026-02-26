@@ -1,54 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import GameCard from '../components/GameCard';
-import { buscarJuegos, obtenerGeneros } from '../services/api';
+import { fetchGamesBySearch, fetchGenres } from '../store/slices/gamesSlice';
 
 const Explore = () => {
+  const dispatch = useDispatch();
+  const { searchResults: games, totalCount: total, genres, loading } = useSelector((state) => state.games);
+
   const [busqueda, setBusqueda] = useState('');
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('');
-
-  // paginacion
   const [page, setPage] = useState(1);
   const pageSize = 8;
-  const [total, setTotal] = useState(0);
 
-  // Cargar generos una sola vez 
   useEffect(() => {
-    const fetchGenres = async () => {
-      const data = await obtenerGeneros();
-      setGenres(data);
-    };
-    fetchGenres();
-  }, []);
+    dispatch(fetchGenres());
+  }, [dispatch]);
 
-  // Si cambia búsqueda o género, volvemos a página 1
   useEffect(() => {
     setPage(1);
   }, [busqueda, selectedGenre]);
 
-  // Buscar juegos cuando cambia el texto, el género o la página
   useEffect(() => {
-    const fetchGames = async () => {
-      setLoading(true);
-
-      // ahora buscarJuegos devuelve 
-      const data = await buscarJuegos(busqueda, pageSize, selectedGenre, page);
-
-      setGames(data.results);
-      setTotal(data.count);
-
-      setLoading(false);
+    const fetchData = () => {
+      dispatch(fetchGamesBySearch({ query: busqueda, pageSize, genreId: selectedGenre, page }));
     };
 
-    const timeoutId = setTimeout(() => {
-      fetchGames();
-    }, 500);
-
+    const timeoutId = setTimeout(fetchData, 500);
     return () => clearTimeout(timeoutId);
-  }, [busqueda, selectedGenre, page]);
+  }, [busqueda, selectedGenre, page, dispatch]);
 
   const totalPages = Math.ceil(total / pageSize) || 1;
   const hayAnterior = page > 1;

@@ -1,49 +1,42 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import GameCard from "../components/GameCard";
-import { obtenerDetalleJuego } from "../services/api";
+import { API_SERVICE } from "../services/service";
 
 const Favorites = () => {
-  const [favoriteIds, setFavoriteIds] = useState([]);
+  const favoriteIds = useSelector((state) => state.games.favorites);
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const cargarIds = () => {
-    const ids = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setFavoriteIds(ids);
-    return ids;
-  };
-
   useEffect(() => {
     const fetchFavorites = async () => {
-      setLoading(true);
-      const ids = cargarIds();
-
-      if (ids.length === 0) {
+      if (favoriteIds.length === 0) {
         setGames([]);
         setLoading(false);
         return;
       }
 
-      const results = await Promise.all(
-        ids.map(async (id) => {
-          const game = await obtenerDetalleJuego(id);
-          return game; // puede ser null si falla
-        })
-      );
-
-      setGames(results.filter(Boolean));
-      setLoading(false);
+      setLoading(true);
+      try {
+        const results = await Promise.all(
+          favoriteIds.map(async (id) => {
+            try {
+              return await API_SERVICE.getGameDetail(id);
+            } catch (error) {
+              return null;
+            }
+          })
+        );
+        setGames(results.filter(Boolean));
+      } catch (error) {
+        console.error("Error fetching favorites", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchFavorites();
-
-    // opcional: si cambias favoritos desde otra pestaña
-    const onStorage = (e) => {
-      if (e.key === "favorites") fetchFavorites();
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  }, [favoriteIds]);
 
   if (loading) {
     return (
