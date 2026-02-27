@@ -1,42 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import GameCard from "../components/GameCard";
-import { API_SERVICE } from "../services/service";
+import { fetchFavoriteGames } from "../store/slices/gamesSlice";
 
 const Favorites = () => {
-  const favoriteIds = useSelector((state) => state.games.favorites);
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { favorites: favoriteIds, favoriteGames: games, loading } = useSelector((state) => state.games);
 
   useEffect(() => {
-    const fetchFavorites = async () => {
-      if (favoriteIds.length === 0) {
-        setGames([]);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const results = await Promise.all(
-          favoriteIds.map(async (id) => {
-            try {
-              return await API_SERVICE.getGameDetail(id);
-            } catch (error) {
-              return null;
-            }
-          })
-        );
-        setGames(results.filter(Boolean));
-      } catch (error) {
-        console.error("Error fetching favorites", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFavorites();
-  }, [favoriteIds]);
+    if (favoriteIds.length > 0) {
+      dispatch(fetchFavoriteGames(favoriteIds));
+    }
+  }, [dispatch, favoriteIds]);
 
   if (loading) {
     return (

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { initialEvents } from '../../data/eventsData';
+import { initialEvents } from '../../services/events';
 
 const eventsSlice = createSlice({
     name: 'events',

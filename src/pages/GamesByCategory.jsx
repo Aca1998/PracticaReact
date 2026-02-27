@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import GameCard from '../components/GameCard';
-import { buscarJuegos } from '../services/api';
+import { fetchGamesBySearch } from '../store/slices/gamesSlice';
 
 const GamesByCategory = () => {
     const { categoryType, slug } = useParams();
-    const [games, setGames] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const { searchResults: games, totalCount: total, loading } = useSelector((state) => state.games);
+
     const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
     const pageSize = 8;
 
     useEffect(() => {
@@ -16,18 +17,11 @@ const GamesByCategory = () => {
     }, [categoryType, slug]);
 
     useEffect(() => {
-        const fetchGames = async () => {
-            setLoading(true);
-            const genreId = categoryType === 'genero' ? slug : '';
-            const tags = categoryType === 'tag' ? slug : '';
+        const genreId = categoryType === 'genero' ? slug : '';
+        const tags = categoryType === 'tag' ? slug : '';
 
-            const data = await buscarJuegos("", pageSize, genreId, page, tags);
-            setGames(data.results);
-            setTotal(data.count);
-            setLoading(false);
-        };
-        fetchGames();
-    }, [categoryType, slug, page]);
+        dispatch(fetchGamesBySearch({ pageSize, genreId, page, tags }));
+    }, [dispatch, categoryType, slug, page]);
 
     const totalPages = Math.ceil(total / pageSize) || 1;
     const hayAnterior = page > 1;

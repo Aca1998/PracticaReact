@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import GameCard from '../components/GameCard';
-import { obtenerDetallePublisher, buscarJuegos } from '../services/api';
+import { fetchPublisherDetail, fetchGamesBySearch, clearCurrentPublisher } from '../store/slices/gamesSlice';
 
 const PublisherDetail = () => {
     const { id } = useParams();
-    const [publisher, setPublisher] = useState(null);
-    const [games, setGames] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const {
+        currentPublisher: publisher,
+        searchResults: games,
+        totalCount: total,
+        loading
+    } = useSelector((state) => state.games);
+
     const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
     const pageSize = 8;
 
     useEffect(() => {
-        const fetchPublisherData = async () => {
-            setLoading(true);
-            const pubData = await obtenerDetallePublisher(id);
-            setPublisher(pubData);
-
-            if (pubData) {
-                const gamesData = await buscarJuegos("", pageSize, "", page, "", id);
-                setGames(gamesData.results);
-                setTotal(gamesData.count);
-            }
-            setLoading(false);
+        dispatch(fetchPublisherDetail(id));
+        return () => {
+            dispatch(clearCurrentPublisher());
         };
-        fetchPublisherData();
-    }, [id, page]);
+    }, [dispatch, id]);
+
+    useEffect(() => {
+        dispatch(fetchGamesBySearch({ pageSize, page, publishers: id }));
+    }, [dispatch, id, page]);
 
     const totalPages = Math.ceil(total / pageSize) || 1;
     const hayAnterior = page > 1;
