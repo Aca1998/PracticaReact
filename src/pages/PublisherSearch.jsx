@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { buscarPublishers } from '../services/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPublishersSearch } from '../store/slices/gamesSlice';
 
 const PublisherSearch = () => {
+    const dispatch = useDispatch();
+    const {
+        searchResultsPublishers: publishers,
+        totalCountPublishers: total,
+        loading
+    } = useSelector((state) => state.games);
+
     const [busqueda, setBusqueda] = useState('');
-    const [publishers, setPublishers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
     const pageSize = 8;
 
     useEffect(() => {
@@ -15,20 +20,12 @@ const PublisherSearch = () => {
     }, [busqueda]);
 
     useEffect(() => {
-        const fetchPublishers = async () => {
-            setLoading(true);
-            const data = await buscarPublishers(busqueda, page, pageSize);
-            setPublishers(data.results);
-            setTotal(data.count);
-            setLoading(false);
-        };
-
         const timeoutId = setTimeout(() => {
-            fetchPublishers();
+            dispatch(fetchPublishersSearch({ query: busqueda, page, pageSize }));
         }, 500);
 
         return () => clearTimeout(timeoutId);
-    }, [busqueda, page]);
+    }, [dispatch, busqueda, page]);
 
     const totalPages = Math.ceil(total / pageSize) || 1;
     const hayAnterior = page > 1;

@@ -46,12 +46,59 @@ export const fetchGameDetail = createAsyncThunk(
     }
 );
 
+export const fetchFavoriteGames = createAsyncThunk(
+    'games/fetchFavoriteGames',
+    async (favoriteIds, { rejectWithValue }) => {
+        try {
+            const results = await Promise.all(
+                favoriteIds.map(async (id) => {
+                    try {
+                        return await API_SERVICE.getGameDetail(id);
+                    } catch (error) {
+                        return null;
+                    }
+                })
+            );
+            return results.filter(Boolean);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const fetchPublishersSearch = createAsyncThunk(
+    'games/fetchPublishersSearch',
+    async (params, { rejectWithValue }) => {
+        try {
+            return await API_SERVICE.searchPublishers(params);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const fetchPublisherDetail = createAsyncThunk(
+    'games/fetchPublisherDetail',
+    async (id, { rejectWithValue }) => {
+        try {
+            return await API_SERVICE.getPublisherDetail(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const gamesSlice = createSlice({
     name: 'games',
     initialState: {
         popularGames: [],
         searchResults: [],
+        searchResultsPublishers: [],
+        currentGame: null,
+        currentPublisher: null,
+        favoriteGames: [],
         totalCount: 0,
+        totalCountPublishers: 0,
         genres: [],
         favorites: JSON.parse(localStorage.getItem('favorites') || '[]'),
         loading: false,
@@ -68,12 +115,19 @@ const gamesSlice = createSlice({
             }
             localStorage.setItem('favorites', JSON.stringify(state.favorites));
         },
+        clearCurrentGame: (state) => {
+            state.currentGame = null;
+        },
+        clearCurrentPublisher: (state) => {
+            state.currentPublisher = null;
+        }
     },
     extraReducers: (builder) => {
         builder
             // Popular Games
             .addCase(fetchPopularGames.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
             .addCase(fetchPopularGames.fulfilled, (state, action) => {
                 state.loading = false;
@@ -86,6 +140,7 @@ const gamesSlice = createSlice({
             // Search Games
             .addCase(fetchGamesBySearch.pending, (state) => {
                 state.loading = true;
+                state.error = null;
             })
             .addCase(fetchGamesBySearch.fulfilled, (state, action) => {
                 state.loading = false;
@@ -96,6 +151,61 @@ const gamesSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            // Game Detail
+            .addCase(fetchGameDetail.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.currentGame = null;
+            })
+            .addCase(fetchGameDetail.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentGame = action.payload;
+            })
+            .addCase(fetchGameDetail.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Favorite Games Details
+            .addCase(fetchFavoriteGames.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchFavoriteGames.fulfilled, (state, action) => {
+                state.loading = false;
+                state.favoriteGames = action.payload;
+            })
+            .addCase(fetchFavoriteGames.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Publishers Search
+            .addCase(fetchPublishersSearch.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchPublishersSearch.fulfilled, (state, action) => {
+                state.loading = false;
+                state.searchResultsPublishers = action.payload.results;
+                state.totalCountPublishers = action.payload.count;
+            })
+            .addCase(fetchPublishersSearch.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Publisher Detail
+            .addCase(fetchPublisherDetail.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.currentPublisher = null;
+            })
+            .addCase(fetchPublisherDetail.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentPublisher = action.payload;
+            })
+            .addCase(fetchPublisherDetail.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
             // Genres
             .addCase(fetchGenres.fulfilled, (state, action) => {
                 state.genres = action.payload;
@@ -103,5 +213,5 @@ const gamesSlice = createSlice({
     },
 });
 
-export const { toggleFavorite } = gamesSlice.actions;
+export const { toggleFavorite, clearCurrentGame, clearCurrentPublisher } = gamesSlice.actions;
 export default gamesSlice.reducer;

@@ -1,39 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { API_SERVICE } from '../services/service';
-import { toggleFavorite } from '../store/slices/gamesSlice';
+import { fetchGameDetail, toggleFavorite, clearCurrentGame } from '../store/slices/gamesSlice';
 
 const GameDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
-    const favorites = useSelector((state) => state.games.favorites);
-
-    const [game, setGame] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { currentGame: game, loading, favorites } = useSelector((state) => state.games);
 
     const isFavorite = favorites.includes(id);
 
     useEffect(() => {
-        const fetchGame = async () => {
-            setLoading(true);
-            try {
-                const data = await API_SERVICE.getGameDetail(id);
-                setGame(data);
-            } catch (error) {
-                console.error("Error fetching game detail", error);
-            } finally {
-                setLoading(false);
-            }
+        dispatch(fetchGameDetail(id));
+        return () => {
+            dispatch(clearCurrentGame());
         };
-        fetchGame();
-    }, [id]);
+    }, [dispatch, id]);
 
     const handleToggleFavorite = () => {
         dispatch(toggleFavorite(id));
     };
 
-    if (loading) {
+    if (loading && !game) {
         return (
             <div className="min-h-screen bg-[#0F172A] flex justify-center items-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
